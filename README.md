@@ -13,3 +13,11 @@ Both implementations will be running with at least 10 clients, but the number of
 The code and implementations for this section can be found in the `Clocks` folder.
 The explanation is in the [README.md](./Clocks/README.md) file in the `Clocks` folder.
 
+# Bully Algorithm
+
+This section implements a simple bully algorithm to run election for a distributed system and take care of node failures. The system will have a coordinator that will be responsible for synchronizing data across the nodes. The system is fault-tolerant, handling node failures during elections and node operations.
+
+## Where to find the code
+The code and implementations for this section can be found in the `BullyAlgo` folder.
+The explanation is in the [README.md](./BullyAlgo/README.md) file in the `BullyAlgo` folder.
+
