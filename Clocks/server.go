@@ -41,10 +41,13 @@ func (s *Server) IncrementAndUpdateMsg(msg *Message) *Message {
 
 	// update the message clock
 	newMsg := &Message{
-		Msg:         msg.Msg,
-		From:        msg.From,
-		Clock:       s.clock,
-		VectorClock: make([]int, len(s.vectorClock)), // Ensure correct length for the new vector clock.
+		Msg:   msg.Msg,
+		From:  msg.From,
+		Clock: s.clock,
+		VectorClock: make(
+			[]int,
+			len(s.vectorClock),
+		), // Ensure correct length for the new vector clock.
 	}
 
 	// Copy the server's vector clock to the new message's vector clock.
@@ -68,7 +71,11 @@ func (s *Server) Start() {
 			s.clockMutex.Unlock()
 
 			if s.useVectoreClock && CheckCausalViolation(s, *msg) {
-				fmt.Printf("Server found causal violation with msg clock %v and server clock %v \n", msg.GetVectorClock, s.GetVectorClock)
+				fmt.Printf(
+					"Server found causal violation with msg clock %v and server clock %v \n",
+					msg.GetVectorClock(),
+					s.GetVectorClock(),
+				)
 			} else if s.useVectoreClock {
 				fmt.Printf("Server received: %s ,at server vector clock %v\n", msg.Msg, s.vectorClock)
 			} else {
@@ -94,7 +101,12 @@ func (s *Server) Start() {
 				s.clockMutex.Lock()
 				updatedMsg := s.IncrementAndUpdateMsg(msg)
 				if s.useVectoreClock {
-					fmt.Printf("Server sent:%s to client %d at server vector clock %v \n", updatedMsg.Msg, client.id, s.vectorClock)
+					fmt.Printf(
+						"Server sent:%s to client %d at server vector clock %v \n",
+						updatedMsg.Msg,
+						client.id,
+						s.vectorClock,
+					)
 				} else {
 					fmt.Printf("Server sent:%s to client %d at server clock %d \n", updatedMsg.Msg, client.id, s.clock)
 				}
