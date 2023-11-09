@@ -16,7 +16,7 @@ const (
 )
 
 func (m MessageType) String() string {
-	return [...]string{"Release", "Rescind", "RescindReply"}[m]
+	return [...]string{"Release", "Rescind", "RescindReply, "}[m]
 }
 
 type Message struct {
@@ -25,9 +25,8 @@ type Message struct {
 }
 
 type Request struct {
-	timestamp  int
-	pid        int
-	replyChann chan int
+	timestamp int
+	pid       int
 }
 type Node struct {
 	pid         int
@@ -39,6 +38,7 @@ type Node struct {
 	votedFrom   []int
 	requestChan map[int]chan Request
 	messageChan map[int]chan Message
+	replyChan   map[int]chan int
 }
 
 func (n *Node) RequestCS() {
@@ -49,34 +49,39 @@ func (n *Node) RequestCS() {
 	n.mu.Unlock()
 
 	request := Request{
-		timestamp:  ts,
-		pid:        n.pid,
-		replyChann: make(chan int),
+		timestamp: ts,
+		pid:       n.pid,
 	}
 
-	for id, ch := range n.requestChan {
-		if id == n.pid {
-			continue
-		}
+	for _, ch := range n.requestChan {
 		ch <- request
 	}
 
 	targetNum := len(n.messageChan)/2 + 1
 	replies := 0
 	for replies < targetNum {
-		sourceId := <-request.replyChann
-		fmt.Printf("Node %d receive reply from node node %d but not updated yet\n", n.pid, sourceId)
+
+		sourceId := <-n.replyChan[n.pid]
+
 		n.mu.Lock()
 		n.votedFrom = append(n.votedFrom, sourceId)
 		replies = len(n.votedFrom)
-		fmt.Printf(
-			"Node %d receive reply from node %d total replies: %d\n",
-			n.pid,
-			sourceId,
-			replies,
-		)
+		fmt.Printf("Node %d receive reply from %d. Total Replies:%d\n", n.pid, sourceId, replies)
 		n.mu.Unlock()
 	}
+
+	// Drain the channel after receiving enough replies
+	go func() {
+		n.mu.Lock()
+		defer n.mu.Unlock()
+		if n.inCS {
+			// Additional replies are not needed, drain the channel
+			for len(n.replyChan[n.pid]) > 0 {
+				sourceId := <-n.replyChan[n.pid]
+				n.votedFrom = append(n.votedFrom, sourceId)
+			}
+		}
+	}()
 
 	n.mu.Lock()
 	n.inCS = true
@@ -141,7 +146,8 @@ func (n *Node) handleRequest(request Request) {
 	n.queue = append(n.queue, request)
 	if n.votedFor == nil {
 		fmt.Printf("Node %d vote for node %d\n", n.pid, request.pid)
-		request.replyChann <- n.pid
+		n.replyChan[request.pid] <- n.pid
+
 		for i := range n.queue {
 			if n.queue[i].pid == request.pid && n.queue[i].timestamp == request.timestamp {
 				n.votedFor = &n.queue[i]
@@ -158,6 +164,7 @@ func (n *Node) handleRequest(request Request) {
 			}
 			fmt.Printf("Node %d sending rescind message to node %d\n", n.pid, n.votedFor.pid)
 			n.messageChan[n.votedFor.pid] <- rescindMessage
+			fmt.Println("Sent")
 		}
 	}
 }
@@ -165,9 +172,8 @@ func (n *Node) sendReply() {
 	nextRequest := n.queue[0]
 	n.votedFor = &nextRequest
 	fmt.Printf("Node %d vote for node %d\n", n.pid, nextRequest.pid)
-	nextRequest.replyChann <- n.pid
-	fmt.Println("Sent")
-
+	n.replyChan[nextRequest.pid] <- n.pid
+	fmt.Println("Send")
 }
 
 func (n *Node) handleMessage(message Message) {
@@ -180,6 +186,7 @@ func (n *Node) handleMessage(message Message) {
 
 	case Rescind:
 		if n.inCS {
+			fmt.Printf("Node %d currently in cs not able to rescind", n.pid)
 			return
 		}
 		n.votedFrom = remove(n.votedFrom, message.pid)
@@ -187,6 +194,12 @@ func (n *Node) handleMessage(message Message) {
 			msg: RescindReply,
 			pid: n.pid,
 		}
+		fmt.Printf(
+			"Node %d release vote by %d, current votes:%v\n",
+			n.pid,
+			message.pid,
+			n.votedFrom,
+		)
 		n.messageChan[message.pid] <- releaseMsg
 	// receive release vote
 	case Release:
@@ -217,6 +230,7 @@ func (n *Node) handleMessage(message Message) {
 			n.sortQueue()
 			n.sendReply()
 		}
+
 	}
 
 }
@@ -235,11 +249,17 @@ func (n *Node) Listen() {
 
 }
 
-func NewNode(pid int, messageChan map[int]chan Message, requestChan map[int]chan Request) *Node {
+func NewNode(
+	pid int,
+	messageChan map[int]chan Message,
+	requestChan map[int]chan Request,
+	replyChan map[int]chan int,
+) *Node {
 	return &Node{
 		pid:         pid,
 		messageChan: messageChan,
 		requestChan: requestChan,
+		replyChan:   replyChan,
 	}
 }
 
@@ -250,17 +270,20 @@ func (n *Node) sortQueue() {
 }
 
 func main() {
-	nClient := 5
+	nClient := 10
 	messageChan := make(map[int]chan Message, nClient)
 	requestChan := make(map[int]chan Request, nClient)
+	replyChan := make(map[int]chan int, nClient)
 	for i := 0; i < nClient; i++ {
-		messageChan[i] = make(chan Message, nClient)
-		requestChan[i] = make(chan Request, nClient)
+		messageChan[i] = make(chan Message, 10*nClient)
+		requestChan[i] = make(chan Request, 2*nClient)
+		replyChan[i] = make(chan int, 2*nClient)
+
 	}
 
 	nodes := make([]*Node, nClient)
 	for i := 0; i < nClient; i++ {
-		nodes[i] = NewNode(i, messageChan, requestChan)
+		nodes[i] = NewNode(i, messageChan, requestChan, replyChan)
 		go nodes[i].Listen()
 	}
 
