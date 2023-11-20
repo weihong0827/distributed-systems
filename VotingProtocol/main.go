@@ -271,6 +271,7 @@ func (n *Node) sortQueue() {
 
 func main() {
 	nClient := 10
+	nRequestors := 3
 	messageChan := make(map[int]chan Message, nClient)
 	requestChan := make(map[int]chan Request, nClient)
 	replyChan := make(map[int]chan int, nClient)
@@ -287,15 +288,21 @@ func main() {
 		go nodes[i].Listen()
 	}
 
-	for i := 0; i < nClient; i++ {
+	var wg sync.WaitGroup
+	startTime := time.Now()
+	wg.Add(nRequestors)
+	for i := 0; i < nRequestors; i++ {
 		go func(pid int) {
+			defer wg.Done()
 			nodes[pid].RequestCS()
 			fmt.Println("-------------------------------------")
 			fmt.Printf("Process %d in critical section\n", pid)
 			fmt.Println("-------------------------------------")
-			time.Sleep(3 * time.Second)
 			nodes[pid].ReleaseCS()
 		}(i)
 	}
-	time.Sleep(35 * time.Second)
+	wg.Wait()
+	endTime := time.Now()
+	duration := endTime.Sub(startTime)
+	fmt.Println(duration)
 }

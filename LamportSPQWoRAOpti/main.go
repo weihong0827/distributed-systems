@@ -159,7 +159,7 @@ func max(a, b int) int {
 }
 
 func main() {
-	nClient := 3
+	nClient := 10
 	channels := make(map[int]chan Request, nClient)
 	releaseChans := make(map[int]chan bool, nClient)
 	replyChans := make(map[int]chan bool, nClient)
@@ -180,7 +180,7 @@ func main() {
 		go func(pid int) {
 			processes[pid-1].RequestCS()
 			fmt.Printf("Process %d in critical section\n", pid)
-			time.Sleep(time.Duration(pid) * time.Second)
+			time.Sleep(3 * time.Second)
 			processes[pid-1].ReleaseCS()
 		}(i)
 	}
