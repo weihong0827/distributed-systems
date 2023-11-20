@@ -31,7 +31,26 @@ There are 4 different parts to this Assignment focusing on distributed mutex imp
 
 4. Compare the performance of three implementations
 
-# Performance comparision
+## Lamport's shared priority queue without Ricart and Agrawala's optimization
+This section implements the detailed protocol of Lamport's shared priority queue without Ricart and Agrawala's optimization to achieve distributed mutual exclusion. The theory of how it works can be found [here](https://infiniteloop.weihong.tech/study/50-041-distributed-systems-and-computing/distributed-mutual-exclusion#lamport-s-shared-priority-queue)
+### Where to find the code
+The code and the implements can be found in the `LamportSPQWoRAOpti` folder.
+The explanation is in the [README.md](./LamportSPQWoRAOpti/README.md) file in the `LamportSPQWoRAOpti` folder.
+
+## Lamport's shared priority queue with Ricart and Agrawala's optimization
+Similar as the above, you can found the theory of the protocol [here](https://infiniteloop.weihong.tech/study/50-041-distributed-systems-and-computing/distributed-mutual-exclusion#optimised-version)
+### Where to find the code
+The code and the implements can be found in the `LamportSPQWithRAOpti` folder.
+The explanation is in the [README.md](./LamportSPQWithRAOpti/README.md) file in the `LamportSPQWithRAOpti` folder.
+
+## Voting Protocol
+Taking a different approach as comapred to the shared priority queue, the voting protocol try to get votes from majority to enter the Critical section, deadlock avoidance is implemented using vote rescinding. The theory of how it works can be found [here](https://infiniteloop.weihong.tech/study/50-041-distributed-systems-and-computing/distributed-mutual-exclusion#voting-protocol)
+### Where to find the code
+The code and the implements can be found in the `VotingProtocol` folder.
+The explanation is in the [README.md](./VotingProtocol/README.md) file in the `VotingProtocol` folder.
+
+
+## Performance comparision
 
 | Time Taken for Protocol (ms)      | 1    | 2    | 3    | 4    | 5    | 6    | 7    | 8    | 9    | 10   |
 |-----------------------------------|------|------|------|------|------|------|------|------|------|------|
