@@ -31,7 +31,14 @@ There are 4 different parts to this Assignment focusing on distributed mutex imp
 
 4. Compare the performance of three implementations
 
-## performance
+# Performance comparision
+
+| Time Taken for Protocol (ms)      | 1    | 2    | 3    | 4    | 5    | 6    | 7    | 8    | 9    | 10   |
+|-----------------------------------|------|------|------|------|------|------|------|------|------|------|
+| Lamport Shared Priority Queue     | 0.62 | 1.30 | 1.45 | 1.50 | 2.75 | 2.90 | 3.30 | 3.50 | 4.15 | 5.00 |
+| Ricart & Agrawala                 | 0.35 | 0.40 | 0.42 | 0.44 | 0.78 | 0.83 | 1.30 | 1.40 | 1.68 | 1.77 |
+| Voting Protocol                   | 0.12 | 0.14 | 0.40 | 0.55 | 0.70 | 0.82 | 0.95 | 1.25 | 1.43 | 1.70 |
+
 
 
 
