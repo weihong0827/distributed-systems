@@ -47,7 +47,7 @@ The explanation is in the [README.md](./LamportSPQWithRAOpti/README.md) file in 
 Taking a different approach as comapred to the shared priority queue, the voting protocol try to get votes from majority to enter the Critical section, deadlock avoidance is implemented using vote rescinding. The theory of how it works can be found [here](https://infiniteloop.weihong.tech/study/50-041-distributed-systems-and-computing/distributed-mutual-exclusion#voting-protocol)
 ### Where to find the code
 The code and the implements can be found in the `VotingProtocol` folder.
-The explanation is in the [README.md](./VotingProtocol/README.md) file in the `VotingProtocol` folder.
+The explanation is in the [README.md](./VotingProtocol/readme.md) file in the `VotingProtocol` folder.
 
 
 ## Performance comparision
