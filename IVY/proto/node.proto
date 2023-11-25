@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+import "manager.proto";
+option go_package = "proto/";
+package proto;
+
+service NodeService {
+    rpc WriteForward(ForwardRequest) returns (Empty) {}
+    rpc Invalidate(InvalidateRequest) returns (Empty) {}
+    rpc Send(SendRequest) returns (Empty) {}
+}
+
+message SendRequest {
+    string page = 1;
+}
+message InvalidateRequest {
+    string page = 1;
+}
+
+message ForwardRequest {
+    string page = 1;
+    string node = 2;
+}

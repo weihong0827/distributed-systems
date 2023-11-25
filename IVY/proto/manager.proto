@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option go_package = "proto/";
+package proto;
+
+service ManagerService {
+  rpc Write(WriteRequest) returns (Empty) {}
+  rpc WriteConfirmation(WriteConfirmationRequest) returns (Empty) {}
+
+}
+
+message WriteConfirmationRequest {
+  string page = 1;
+  string content = 2;
+}
+
+message WriteRequest {
+  string page = 1;
+  string source = 2;
+}
+
+message Empty {
+}
+
