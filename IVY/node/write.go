@@ -51,13 +51,18 @@ func (n *Node) InitWrite(context context.Context, request *pb.InitWriteRequest) 
 		log.Printf("node %d: error sending write request to manager: %s", n.id, err.Error())
 		return nil, err
 	}
-	conn.Close()
+	defer conn.Close()
 	if resp.ToWrite {
-		n.SendWriteConfirmation(context, &pb.WriteConfirmationRequest{
+		err := n.SendWriteConfirmation(context, &pb.WriteConfirmationRequest{
 			Page:    request.Page,
 			Content: request.Content,
 			Source:  n.id,
 		})
+		if err != nil {
+			return nil, err
+		}
+		n.UpdatePageContent(request.Page, request.Content, WRITE)
+		return &pb.Empty{}, nil
 	} else {
 		n.pendingWrites[request.Page] = request
 		for {
