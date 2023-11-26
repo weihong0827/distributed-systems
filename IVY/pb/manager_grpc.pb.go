@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ManagerServiceClient interface {
-	Write(ctx context.Context, in *WriteRequest, opts ...grpc.CallOption) (*Empty, error)
+	Write(ctx context.Context, in *WriteRequest, opts ...grpc.CallOption) (*WriteResponse, error)
 	WriteConfirmation(ctx context.Context, in *WriteConfirmationRequest, opts ...grpc.CallOption) (*Empty, error)
 }
 
@@ -34,8 +34,8 @@ func NewManagerServiceClient(cc grpc.ClientConnInterface) ManagerServiceClient {
 	return &managerServiceClient{cc}
 }
 
-func (c *managerServiceClient) Write(ctx context.Context, in *WriteRequest, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
+func (c *managerServiceClient) Write(ctx context.Context, in *WriteRequest, opts ...grpc.CallOption) (*WriteResponse, error) {
+	out := new(WriteResponse)
 	err := c.cc.Invoke(ctx, "/proto.ManagerService/Write", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func (c *managerServiceClient) WriteConfirmation(ctx context.Context, in *WriteC
 // All implementations must embed UnimplementedManagerServiceServer
 // for forward compatibility
 type ManagerServiceServer interface {
-	Write(context.Context, *WriteRequest) (*Empty, error)
+	Write(context.Context, *WriteRequest) (*WriteResponse, error)
 	WriteConfirmation(context.Context, *WriteConfirmationRequest) (*Empty, error)
 	mustEmbedUnimplementedManagerServiceServer()
 }
@@ -65,7 +65,7 @@ type ManagerServiceServer interface {
 type UnimplementedManagerServiceServer struct {
 }
 
-func (UnimplementedManagerServiceServer) Write(context.Context, *WriteRequest) (*Empty, error) {
+func (UnimplementedManagerServiceServer) Write(context.Context, *WriteRequest) (*WriteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Write not implemented")
 }
 func (UnimplementedManagerServiceServer) WriteConfirmation(context.Context, *WriteConfirmationRequest) (*Empty, error) {

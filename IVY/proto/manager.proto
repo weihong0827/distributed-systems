@@ -4,7 +4,7 @@ option go_package = "proto/";
 package proto;
 
 service ManagerService {
-  rpc Write(WriteRequest) returns (Empty) {}
+  rpc Write(WriteRequest) returns (WriteResponse) {}
   rpc WriteConfirmation(WriteConfirmationRequest) returns (Empty) {}
 
 }
@@ -12,11 +12,16 @@ service ManagerService {
 message WriteConfirmationRequest {
   string page = 1;
   string content = 2;
+  int64 source = 3;
 }
 
 message WriteRequest {
   string page = 1;
-  string source = 2;
+  int64 source = 2;
+}
+
+message WriteResponse {
+  bool toWrite = 1;
 }
 
 message Empty {

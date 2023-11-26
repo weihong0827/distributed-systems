@@ -1,8 +1,7 @@
 package node
 
 import (
-	"context"
-	"log"
+	"sync"
 
 	pb "Ivy/pb"
 )
@@ -12,6 +11,7 @@ type Access int
 const (
 	READ Access = iota
 	WRITE
+	NIL
 )
 
 type LocalPage struct {
@@ -21,21 +21,20 @@ type LocalPage struct {
 
 type Node struct {
 	pb.UnimplementedNodeServiceServer
-	pages map[string]LocalPage
-	id    int
-	CM    string
+	pages         map[string]*LocalPage
+	id            int64
+	CM            string
+	mu            sync.Mutex
+	pendingWrites map[string]*pb.InitWriteRequest
+	waitChan      chan string
 }
 
-func NewNode(id int, CM string) *Node {
+func NewNode(id int64, CM string) *Node {
 	return &Node{
-		pages: make(map[string]LocalPage),
-		id:    id,
-		CM:    CM,
+		pages:         make(map[string]*LocalPage),
+		id:            id,
+		CM:            CM,
+		pendingWrites: make(map[string]*pb.InitWriteRequest),
+		waitChan:      make(chan string),
 	}
-}
-
-func (n *Node) Invalidate(context context.Context, request *pb.InvalidateRequest) (*pb.Empty, error) {
-	log.Printf("node %d: invalidate page %s", n.id, request.Page)
-	// delete(n.pages, request.Page)
-	return &pb.Empty{}, nil
 }

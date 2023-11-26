@@ -25,6 +25,7 @@ type NodeServiceClient interface {
 	WriteForward(ctx context.Context, in *ForwardRequest, opts ...grpc.CallOption) (*Empty, error)
 	Invalidate(ctx context.Context, in *InvalidateRequest, opts ...grpc.CallOption) (*Empty, error)
 	Send(ctx context.Context, in *SendRequest, opts ...grpc.CallOption) (*Empty, error)
+	InitWrite(ctx context.Context, in *InitWriteRequest, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type nodeServiceClient struct {
@@ -62,6 +63,15 @@ func (c *nodeServiceClient) Send(ctx context.Context, in *SendRequest, opts ...g
 	return out, nil
 }
 
+func (c *nodeServiceClient) InitWrite(ctx context.Context, in *InitWriteRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/proto.NodeService/InitWrite", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NodeServiceServer is the server API for NodeService service.
 // All implementations must embed UnimplementedNodeServiceServer
 // for forward compatibility
@@ -69,6 +79,7 @@ type NodeServiceServer interface {
 	WriteForward(context.Context, *ForwardRequest) (*Empty, error)
 	Invalidate(context.Context, *InvalidateRequest) (*Empty, error)
 	Send(context.Context, *SendRequest) (*Empty, error)
+	InitWrite(context.Context, *InitWriteRequest) (*Empty, error)
 	mustEmbedUnimplementedNodeServiceServer()
 }
 
@@ -84,6 +95,9 @@ func (UnimplementedNodeServiceServer) Invalidate(context.Context, *InvalidateReq
 }
 func (UnimplementedNodeServiceServer) Send(context.Context, *SendRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Send not implemented")
+}
+func (UnimplementedNodeServiceServer) InitWrite(context.Context, *InitWriteRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InitWrite not implemented")
 }
 func (UnimplementedNodeServiceServer) mustEmbedUnimplementedNodeServiceServer() {}
 
@@ -152,6 +166,24 @@ func _NodeService_Send_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NodeService_InitWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InitWriteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServiceServer).InitWrite(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.NodeService/InitWrite",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServiceServer).InitWrite(ctx, req.(*InitWriteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NodeService_ServiceDesc is the grpc.ServiceDesc for NodeService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -170,6 +202,10 @@ var NodeService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Send",
 			Handler:    _NodeService_Send_Handler,
+		},
+		{
+			MethodName: "InitWrite",
+			Handler:    _NodeService_InitWrite_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

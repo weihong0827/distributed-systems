@@ -83,9 +83,7 @@ func (n *Node) RequestCS() {
 		}
 	}()
 
-	n.mu.Lock()
 	n.inCS = true
-	n.mu.Unlock()
 	fmt.Printf("Node %d Entering CS\n", n.pid)
 
 }

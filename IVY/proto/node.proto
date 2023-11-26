@@ -8,7 +8,14 @@ service NodeService {
     rpc WriteForward(ForwardRequest) returns (Empty) {}
     rpc Invalidate(InvalidateRequest) returns (Empty) {}
     rpc Send(SendRequest) returns (Empty) {}
+    rpc InitWrite(InitWriteRequest) returns (Empty) {}
 }
+
+message InitWriteRequest {
+    string page = 1;
+    string content = 2;
+}
+
 
 message SendRequest {
     string page = 1;
@@ -21,3 +28,4 @@ message ForwardRequest {
     string page = 1;
     string node = 2;
 }
+
