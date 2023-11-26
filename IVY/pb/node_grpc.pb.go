@@ -26,6 +26,10 @@ type NodeServiceClient interface {
 	Invalidate(ctx context.Context, in *InvalidateRequest, opts ...grpc.CallOption) (*Empty, error)
 	Send(ctx context.Context, in *SendRequest, opts ...grpc.CallOption) (*Empty, error)
 	InitWrite(ctx context.Context, in *InitWriteRequest, opts ...grpc.CallOption) (*Empty, error)
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	InitRead(ctx context.Context, in *InitReadRequest, opts ...grpc.CallOption) (*InitReadResponse, error)
+	ReadForward(ctx context.Context, in *ReadForwardRequest, opts ...grpc.CallOption) (*Empty, error)
+	SendContent(ctx context.Context, in *SendContentRequest, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type nodeServiceClient struct {
@@ -72,6 +76,33 @@ func (c *nodeServiceClient) InitWrite(ctx context.Context, in *InitWriteRequest,
 	return out, nil
 }
 
+func (c *nodeServiceClient) InitRead(ctx context.Context, in *InitReadRequest, opts ...grpc.CallOption) (*InitReadResponse, error) {
+	out := new(InitReadResponse)
+	err := c.cc.Invoke(ctx, "/proto.NodeService/InitRead", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeServiceClient) ReadForward(ctx context.Context, in *ReadForwardRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/proto.NodeService/ReadForward", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeServiceClient) SendContent(ctx context.Context, in *SendContentRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/proto.NodeService/SendContent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NodeServiceServer is the server API for NodeService service.
 // All implementations must embed UnimplementedNodeServiceServer
 // for forward compatibility
@@ -80,6 +111,10 @@ type NodeServiceServer interface {
 	Invalidate(context.Context, *InvalidateRequest) (*Empty, error)
 	Send(context.Context, *SendRequest) (*Empty, error)
 	InitWrite(context.Context, *InitWriteRequest) (*Empty, error)
+	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	InitRead(context.Context, *InitReadRequest) (*InitReadResponse, error)
+	ReadForward(context.Context, *ReadForwardRequest) (*Empty, error)
+	SendContent(context.Context, *SendContentRequest) (*Empty, error)
 	mustEmbedUnimplementedNodeServiceServer()
 }
 
@@ -98,6 +133,15 @@ func (UnimplementedNodeServiceServer) Send(context.Context, *SendRequest) (*Empt
 }
 func (UnimplementedNodeServiceServer) InitWrite(context.Context, *InitWriteRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InitWrite not implemented")
+}
+func (UnimplementedNodeServiceServer) InitRead(context.Context, *InitReadRequest) (*InitReadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InitRead not implemented")
+}
+func (UnimplementedNodeServiceServer) ReadForward(context.Context, *ReadForwardRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReadForward not implemented")
+}
+func (UnimplementedNodeServiceServer) SendContent(context.Context, *SendContentRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendContent not implemented")
 }
 func (UnimplementedNodeServiceServer) mustEmbedUnimplementedNodeServiceServer() {}
 
@@ -184,6 +228,60 @@ func _NodeService_InitWrite_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NodeService_InitRead_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InitReadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServiceServer).InitRead(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.NodeService/InitRead",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServiceServer).InitRead(ctx, req.(*InitReadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NodeService_ReadForward_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReadForwardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServiceServer).ReadForward(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.NodeService/ReadForward",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServiceServer).ReadForward(ctx, req.(*ReadForwardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NodeService_SendContent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendContentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServiceServer).SendContent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.NodeService/SendContent",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServiceServer).SendContent(ctx, req.(*SendContentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NodeService_ServiceDesc is the grpc.ServiceDesc for NodeService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -206,6 +304,18 @@ var NodeService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "InitWrite",
 			Handler:    _NodeService_InitWrite_Handler,
+		},
+		{
+			MethodName: "InitRead",
+			Handler:    _NodeService_InitRead_Handler,
+		},
+		{
+			MethodName: "ReadForward",
+			Handler:    _NodeService_ReadForward_Handler,
+		},
+		{
+			MethodName: "SendContent",
+			Handler:    _NodeService_SendContent_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -19,6 +19,11 @@ type LocalPage struct {
 	access  Access
 }
 
+type ReadPage struct {
+	content string
+	page    string
+}
+
 type Node struct {
 	pb.UnimplementedNodeServiceServer
 	pages         map[string]*LocalPage
@@ -27,6 +32,7 @@ type Node struct {
 	mu            sync.Mutex
 	pendingWrites map[string]*pb.InitWriteRequest
 	waitChan      chan string
+	readWaitChan  chan ReadPage
 }
 
 func NewNode(id int64, CM string) *Node {
@@ -36,5 +42,6 @@ func NewNode(id int64, CM string) *Node {
 		CM:            CM,
 		pendingWrites: make(map[string]*pb.InitWriteRequest),
 		waitChan:      make(chan string),
+		readWaitChan:  make(chan ReadPage),
 	}
 }

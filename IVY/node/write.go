@@ -21,6 +21,7 @@ func (n *Node) Invalidate(context context.Context, request *pb.InvalidateRequest
 }
 
 func (n *Node) InitWrite(context context.Context, request *pb.InitWriteRequest) (*pb.Empty, error) {
+	log.Print("=========================================================================")
 	log.Printf("node %d: initiate write for page:%s with content %s", n.id, request.Page, request.Content)
 
 	if page, ok := n.pages[request.Page]; ok {

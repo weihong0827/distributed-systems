@@ -1,19 +1,17 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"net"
 	"net/http"
-	"strconv"
 	"time"
 
 	"Ivy/manager"
 	"Ivy/node"
+	handler "Ivy/web"
 
 	pb "Ivy/pb"
 
-	"Ivy/utils"
 	"google.golang.org/grpc"
 )
 
@@ -32,43 +30,12 @@ func main() {
 	go serveCM(CMAddress, nodes)
 
 	http.HandleFunc("/write", func(w http.ResponseWriter, r *http.Request) {
-		handleWriteRequest(w, r, nodes)
+		handler.HandleWriteRequest(w, r, nodes)
 	})
 	http.HandleFunc("/read", func(w http.ResponseWriter, r *http.Request) {
-		handleReadRequest(w, r, nodes)
+		handler.HandleReadRequest(w, r, nodes)
 	})
 	http.ListenAndServe(":8080", nil)
-}
-
-func handleWriteRequest(w http.ResponseWriter, r *http.Request, clients map[int64]string) {
-	query := r.URL.Query()
-	nodeID, _ := strconv.ParseInt(query.Get("node"), 10, 64)
-
-	if clientAddr, ok := clients[nodeID]; ok {
-		fmt.Fprintf(w, "Write request sent to node %d\n", nodeID)
-		client, conn, err := utils.CreateNodeServiceClient(clientAddr)
-		if err != nil {
-			http.Error(w, "Error creating client", http.StatusInternalServerError)
-		}
-
-		_, err = client.InitWrite(context.Background(), &pb.InitWriteRequest{
-			Page:    query.Get("page"),
-			Content: query.Get("content"),
-		})
-		if err != nil {
-			http.Error(w, "Error sending request", http.StatusInternalServerError)
-		}
-
-		conn.Close()
-
-	} else {
-		http.Error(w, "Invalid node ID", http.StatusBadRequest)
-	}
-}
-
-func handleReadRequest(w http.ResponseWriter, r *http.Request, clients map[int64]string) {
-	// Similar to handleWriteRequest, but for read operations
-	// ...
 }
 
 func serveCM(CMAddress string, nodes map[int64]string) {

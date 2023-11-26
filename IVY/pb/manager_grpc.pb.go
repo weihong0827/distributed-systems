@@ -24,6 +24,8 @@ const _ = grpc.SupportPackageIsVersion7
 type ManagerServiceClient interface {
 	Write(ctx context.Context, in *WriteRequest, opts ...grpc.CallOption) (*WriteResponse, error)
 	WriteConfirmation(ctx context.Context, in *WriteConfirmationRequest, opts ...grpc.CallOption) (*Empty, error)
+	Read(ctx context.Context, in *ReadRequest, opts ...grpc.CallOption) (*Empty, error)
+	ReadConfirmation(ctx context.Context, in *ReadConfirmationRequest, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type managerServiceClient struct {
@@ -52,12 +54,32 @@ func (c *managerServiceClient) WriteConfirmation(ctx context.Context, in *WriteC
 	return out, nil
 }
 
+func (c *managerServiceClient) Read(ctx context.Context, in *ReadRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/proto.ManagerService/Read", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managerServiceClient) ReadConfirmation(ctx context.Context, in *ReadConfirmationRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/proto.ManagerService/ReadConfirmation", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ManagerServiceServer is the server API for ManagerService service.
 // All implementations must embed UnimplementedManagerServiceServer
 // for forward compatibility
 type ManagerServiceServer interface {
 	Write(context.Context, *WriteRequest) (*WriteResponse, error)
 	WriteConfirmation(context.Context, *WriteConfirmationRequest) (*Empty, error)
+	Read(context.Context, *ReadRequest) (*Empty, error)
+	ReadConfirmation(context.Context, *ReadConfirmationRequest) (*Empty, error)
 	mustEmbedUnimplementedManagerServiceServer()
 }
 
@@ -70,6 +92,12 @@ func (UnimplementedManagerServiceServer) Write(context.Context, *WriteRequest) (
 }
 func (UnimplementedManagerServiceServer) WriteConfirmation(context.Context, *WriteConfirmationRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method WriteConfirmation not implemented")
+}
+func (UnimplementedManagerServiceServer) Read(context.Context, *ReadRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Read not implemented")
+}
+func (UnimplementedManagerServiceServer) ReadConfirmation(context.Context, *ReadConfirmationRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReadConfirmation not implemented")
 }
 func (UnimplementedManagerServiceServer) mustEmbedUnimplementedManagerServiceServer() {}
 
@@ -120,6 +148,42 @@ func _ManagerService_WriteConfirmation_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ManagerService_Read_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagerServiceServer).Read(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.ManagerService/Read",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagerServiceServer).Read(ctx, req.(*ReadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ManagerService_ReadConfirmation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReadConfirmationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagerServiceServer).ReadConfirmation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.ManagerService/ReadConfirmation",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagerServiceServer).ReadConfirmation(ctx, req.(*ReadConfirmationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ManagerService_ServiceDesc is the grpc.ServiceDesc for ManagerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +198,14 @@ var ManagerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "WriteConfirmation",
 			Handler:    _ManagerService_WriteConfirmation_Handler,
+		},
+		{
+			MethodName: "Read",
+			Handler:    _ManagerService_Read_Handler,
+		},
+		{
+			MethodName: "ReadConfirmation",
+			Handler:    _ManagerService_ReadConfirmation_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

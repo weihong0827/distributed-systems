@@ -9,8 +9,28 @@ service NodeService {
     rpc Invalidate(InvalidateRequest) returns (Empty) {}
     rpc Send(SendRequest) returns (Empty) {}
     rpc InitWrite(InitWriteRequest) returns (Empty) {}
+
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    rpc InitRead(InitReadRequest) returns (InitReadResponse) {}
+    rpc ReadForward(ReadForwardRequest) returns (Empty) {}
+    rpc SendContent(SendContentRequest) returns (Empty) {}
+}
+message SendContentRequest {
+    string page = 1;
+    string content = 2;
+}
+message ReadForwardRequest {
+    string page = 1;
+    string node = 2;
+}
+message InitReadRequest {
+    string page = 1;
+}
+message InitReadResponse {
+    string content = 1;
 }
 
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 message InitWriteRequest {
     string page = 1;
     string content = 2;

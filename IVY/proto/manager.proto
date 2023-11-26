@@ -7,7 +7,22 @@ service ManagerService {
   rpc Write(WriteRequest) returns (WriteResponse) {}
   rpc WriteConfirmation(WriteConfirmationRequest) returns (Empty) {}
 
+  rpc Read(ReadRequest) returns (Empty) {}
+  rpc ReadConfirmation(ReadConfirmationRequest) returns (Empty) {}
+
+
 }
+
+message ReadRequest {
+  string page = 1;
+  int64 source = 2;
+}
+
+message ReadConfirmationRequest {
+  string page = 1;
+  int64 source = 3;
+}
+
 
 message WriteConfirmationRequest {
   string page = 1;
