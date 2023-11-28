@@ -43,13 +43,13 @@ func NewManager(nodes map[int64]string, isReplica bool, isAlive bool, currtHeadC
 	}
 }
 
-func (m *Manager) Watch(primaryCM string) {
+func (m *Manager) Watch() {
 	for {
 		if !m.isAlive {
 			continue
 		}
 		if m.isReplica {
-			client, _, err := utils.CreateManagerServiceClient(primaryCM)
+			client, _, err := utils.CreateManagerServiceClient(m.managerList[m.currtHeadCM])
 			if err != nil {
 				log.Print(err)
 				m.switchToBackup()

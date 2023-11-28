@@ -34,9 +34,9 @@ func main() {
 	}
 	for id, addr := range managers {
 		if id == 0 {
-			go serveCM(primaryCM, addr, manager.NewManager(nodes, false, true, 0, managers, id))
+			go serveCM(addr, manager.NewManager(nodes, false, true, 0, managers, id))
 		} else {
-			go serveCM(primaryCM, addr, manager.NewManager(nodes, true, true, 0, managers, id))
+			go serveCM(addr, manager.NewManager(nodes, true, true, 0, managers, id))
 		}
 	}
 
@@ -56,14 +56,14 @@ func main() {
 	http.ListenAndServe(":8080", nil)
 }
 
-func serveCM(primaryCM string, CMAddress string, CM *manager.Manager) {
+func serveCM(CMAddress string, CM *manager.Manager) {
 	lis, err := net.Listen("tcp", CMAddress)
 	if err != nil {
 		fmt.Printf("failed to listen on %s: %v\n", CMAddress, err)
 		return
 	}
 	go CM.ServingWrites()
-	go CM.Watch(primaryCM)
+	go CM.Watch()
 
 	grpcServer := grpc.NewServer()
 	pb.RegisterManagerServiceServer(grpcServer, CM)
