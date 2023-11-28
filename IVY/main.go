@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	var nClient int64 = 5
+	var nClient int64 = 10
 	nodes := make(map[int64]string, nClient)
 
 	CMAddress := "localhost:4000"
