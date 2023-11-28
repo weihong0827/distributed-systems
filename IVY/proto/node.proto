@@ -10,11 +10,15 @@ service NodeService {
     rpc Send(SendRequest) returns (Empty) {}
     rpc InitWrite(InitWriteRequest) returns (Empty) {}
 
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     rpc InitRead(InitReadRequest) returns (InitReadResponse) {}
     rpc ReadForward(ReadForwardRequest) returns (Empty) {}
     rpc SendContent(SendContentRequest) returns (Empty) {}
+    rpc SwitchCM(SwitchCMRequest) returns (Empty) {}
 }
+
+
+
 message SendContentRequest {
     string page = 1;
     string content = 2;

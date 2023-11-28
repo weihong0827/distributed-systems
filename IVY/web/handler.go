@@ -63,3 +63,35 @@ func HandleReadRequest(w http.ResponseWriter, r *http.Request, clients map[int64
 		http.Error(w, "Invalid node ID", http.StatusBadRequest)
 	}
 }
+
+type Action int
+
+const (
+	START Action = iota
+	STOP
+)
+
+func HandleManagerState(w http.ResponseWriter, r *http.Request, clients map[int64]string, action Action) {
+	query := r.URL.Query()
+	nodeID, _ := strconv.ParseInt(query.Get("node"), 10, 64)
+	if clientAddr, ok := clients[nodeID]; ok {
+		fmt.Fprintf(w, "Manager state request sent to node %d\n", nodeID)
+		client, conn, err := utils.CreateManagerServiceClient(clientAddr)
+		if err != nil {
+			http.Error(w, "Error creating client", http.StatusInternalServerError)
+		}
+		if action == START {
+			_, err = client.Start(context.Background(), &pb.Empty{})
+		} else {
+			_, err = client.Stop(context.Background(), &pb.Empty{})
+		}
+		if err != nil {
+			errMsg := fmt.Sprintf("Error sending request: %v", err)
+			http.Error(w, errMsg, http.StatusInternalServerError)
+			return
+		}
+		conn.Close()
+	} else {
+		http.Error(w, "Invalid node ID", http.StatusBadRequest)
+	}
+}

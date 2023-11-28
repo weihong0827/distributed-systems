@@ -26,6 +26,11 @@ type ManagerServiceClient interface {
 	WriteConfirmation(ctx context.Context, in *WriteConfirmationRequest, opts ...grpc.CallOption) (*Empty, error)
 	Read(ctx context.Context, in *ReadRequest, opts ...grpc.CallOption) (*Empty, error)
 	ReadConfirmation(ctx context.Context, in *ReadConfirmationRequest, opts ...grpc.CallOption) (*Empty, error)
+	HealthCheck(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
+	GetState(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*State, error)
+	SwitchCM(ctx context.Context, in *SwitchCMRequest, opts ...grpc.CallOption) (*Empty, error)
+	Start(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
+	Stop(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type managerServiceClient struct {
@@ -72,6 +77,51 @@ func (c *managerServiceClient) ReadConfirmation(ctx context.Context, in *ReadCon
 	return out, nil
 }
 
+func (c *managerServiceClient) HealthCheck(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/proto.ManagerService/HealthCheck", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managerServiceClient) GetState(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*State, error) {
+	out := new(State)
+	err := c.cc.Invoke(ctx, "/proto.ManagerService/GetState", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managerServiceClient) SwitchCM(ctx context.Context, in *SwitchCMRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/proto.ManagerService/SwitchCM", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managerServiceClient) Start(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/proto.ManagerService/Start", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managerServiceClient) Stop(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/proto.ManagerService/Stop", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ManagerServiceServer is the server API for ManagerService service.
 // All implementations must embed UnimplementedManagerServiceServer
 // for forward compatibility
@@ -80,6 +130,11 @@ type ManagerServiceServer interface {
 	WriteConfirmation(context.Context, *WriteConfirmationRequest) (*Empty, error)
 	Read(context.Context, *ReadRequest) (*Empty, error)
 	ReadConfirmation(context.Context, *ReadConfirmationRequest) (*Empty, error)
+	HealthCheck(context.Context, *Empty) (*Empty, error)
+	GetState(context.Context, *Empty) (*State, error)
+	SwitchCM(context.Context, *SwitchCMRequest) (*Empty, error)
+	Start(context.Context, *Empty) (*Empty, error)
+	Stop(context.Context, *Empty) (*Empty, error)
 	mustEmbedUnimplementedManagerServiceServer()
 }
 
@@ -98,6 +153,21 @@ func (UnimplementedManagerServiceServer) Read(context.Context, *ReadRequest) (*E
 }
 func (UnimplementedManagerServiceServer) ReadConfirmation(context.Context, *ReadConfirmationRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReadConfirmation not implemented")
+}
+func (UnimplementedManagerServiceServer) HealthCheck(context.Context, *Empty) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HealthCheck not implemented")
+}
+func (UnimplementedManagerServiceServer) GetState(context.Context, *Empty) (*State, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetState not implemented")
+}
+func (UnimplementedManagerServiceServer) SwitchCM(context.Context, *SwitchCMRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SwitchCM not implemented")
+}
+func (UnimplementedManagerServiceServer) Start(context.Context, *Empty) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Start not implemented")
+}
+func (UnimplementedManagerServiceServer) Stop(context.Context, *Empty) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Stop not implemented")
 }
 func (UnimplementedManagerServiceServer) mustEmbedUnimplementedManagerServiceServer() {}
 
@@ -184,6 +254,96 @@ func _ManagerService_ReadConfirmation_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ManagerService_HealthCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagerServiceServer).HealthCheck(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.ManagerService/HealthCheck",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagerServiceServer).HealthCheck(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ManagerService_GetState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagerServiceServer).GetState(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.ManagerService/GetState",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagerServiceServer).GetState(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ManagerService_SwitchCM_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SwitchCMRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagerServiceServer).SwitchCM(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.ManagerService/SwitchCM",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagerServiceServer).SwitchCM(ctx, req.(*SwitchCMRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ManagerService_Start_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagerServiceServer).Start(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.ManagerService/Start",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagerServiceServer).Start(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ManagerService_Stop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagerServiceServer).Stop(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.ManagerService/Stop",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagerServiceServer).Stop(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ManagerService_ServiceDesc is the grpc.ServiceDesc for ManagerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -206,6 +366,26 @@ var ManagerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ReadConfirmation",
 			Handler:    _ManagerService_ReadConfirmation_Handler,
+		},
+		{
+			MethodName: "HealthCheck",
+			Handler:    _ManagerService_HealthCheck_Handler,
+		},
+		{
+			MethodName: "GetState",
+			Handler:    _ManagerService_GetState_Handler,
+		},
+		{
+			MethodName: "SwitchCM",
+			Handler:    _ManagerService_SwitchCM_Handler,
+		},
+		{
+			MethodName: "Start",
+			Handler:    _ManagerService_Start_Handler,
+		},
+		{
+			MethodName: "Stop",
+			Handler:    _ManagerService_Stop_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

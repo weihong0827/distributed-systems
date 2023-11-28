@@ -17,17 +17,28 @@ import (
 
 func main() {
 	var nClient int64 = 5
+	var nReplica int64 = 3
 	nodes := make(map[int64]string, nClient)
+	managers := make(map[int64]string, nReplica)
 
-	CMAddress := "localhost:4000"
+	primaryCM := "localhost:4000"
 
 	// Create a server instance for each node and pass the central manager
 	var i int64
 	for i = 1; i <= nClient; i++ {
 		nodes[i] = fmt.Sprintf("localhost:500%d", i)
-		go serveNode(i, nodes[i], CMAddress) // Start each node in a separate goroutine
+		go serveNode(i, nodes[i], primaryCM) // Start each node in a separate goroutine
 	}
-	go serveCM(CMAddress, nodes)
+	for i = 0; i < nReplica; i++ {
+		managers[i] = fmt.Sprintf("localhost:400%d", i)
+	}
+	for id, addr := range managers {
+		if id == 0 {
+			go serveCM(primaryCM, addr, manager.NewManager(nodes, false, true, 0, managers, id))
+		} else {
+			go serveCM(primaryCM, addr, manager.NewManager(nodes, true, true, 0, managers, id))
+		}
+	}
 
 	http.HandleFunc("/write", func(w http.ResponseWriter, r *http.Request) {
 		handler.HandleWriteRequest(w, r, nodes)
@@ -35,17 +46,24 @@ func main() {
 	http.HandleFunc("/read", func(w http.ResponseWriter, r *http.Request) {
 		handler.HandleReadRequest(w, r, nodes)
 	})
+	http.HandleFunc("/stop", func(w http.ResponseWriter, r *http.Request) {
+		handler.HandleManagerState(w, r, managers, handler.STOP)
+	})
+	http.HandleFunc("/start", func(w http.ResponseWriter, r *http.Request) {
+		handler.HandleManagerState(w, r, managers, handler.START)
+	})
+
 	http.ListenAndServe(":8080", nil)
 }
 
-func serveCM(CMAddress string, nodes map[int64]string) {
+func serveCM(primaryCM string, CMAddress string, CM *manager.Manager) {
 	lis, err := net.Listen("tcp", CMAddress)
 	if err != nil {
 		fmt.Printf("failed to listen on %s: %v\n", CMAddress, err)
 		return
 	}
-	CM := manager.NewManager(nodes)
 	go CM.ServingWrites()
+	go CM.Watch(primaryCM)
 
 	grpcServer := grpc.NewServer()
 	pb.RegisterManagerServiceServer(grpcServer, CM)

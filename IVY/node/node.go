@@ -1,6 +1,7 @@
 package node
 
 import (
+	"context"
 	"sync"
 
 	pb "Ivy/pb"
@@ -44,4 +45,9 @@ func NewNode(id int64, CM string) *Node {
 		waitChan:      make(chan string),
 		readWaitChan:  make(chan ReadPage),
 	}
+}
+
+func (n *Node) SwitchCM(ctx context.Context, req *pb.SwitchCMRequest) (*pb.Empty, error) {
+	n.CM = req.CMAddr
+	return &pb.Empty{}, nil
 }

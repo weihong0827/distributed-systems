@@ -10,8 +10,30 @@ service ManagerService {
   rpc Read(ReadRequest) returns (Empty) {}
   rpc ReadConfirmation(ReadConfirmationRequest) returns (Empty) {}
 
+  rpc HealthCheck(Empty) returns (Empty) {}
+  rpc GetState(Empty) returns (State) {}
+  rpc SwitchCM(SwitchCMRequest) returns (Empty) {}
+
+  rpc Start(Empty) returns (Empty) {}
+  rpc Stop(Empty) returns (Empty) {}
 
 }
+message SwitchCMRequest {
+  string CMAddr = 1;
+}
+
+message Page {
+  repeated int64 copySet = 1;
+  string content = 2;
+  int64 owner = 3;
+
+}
+
+message State {
+  map<string,Page>pages = 1;
+  repeated WriteRequest writeRequests = 2;
+}
+
 
 message ReadRequest {
   string page = 1;
