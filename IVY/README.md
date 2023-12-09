@@ -69,9 +69,12 @@ Base on the Ivy architecture, I have the following changes:
 4. If the CM is not live, the replica will initiate the election process to select a new CM. (Ideally a proper election algorithm is used, but here I just simply use the replica with the highest id as the new CM)
 5. If a new CM is selected, it will broadcast to all the CM and the nodes that it is the new CM. 
 6. When the primary CM is back online, it will sync the state with the new CM. And broadcast to the rest of the CM that it is the new CM. 
+7. Before every successful response to the user, the node will sync the state with the CM. 
 
 # Question 3
 Discuss whether your fault tolerant version of Ivy still preserves sequential consistency or not.
+
+![consistency](./consistency.png)
 
 Under the assumption that election and state sync is fast, the fault tolerant version of Ivy still preserves sequential consistency.
 
@@ -87,10 +90,37 @@ In the even that the node fails before its able to send the updated state to the
 
 # Performance Evaluation
 
+### Performance in Normal Scenario
+| Version                | Number of Nodes | Number of CMs | Time Taken |
+|------------------------|-----------------|---------------|------------|
+| Basic Ivy Protocol     | 10              | 1             | 4.5 ms     |
+| Fault-Tolerant Version | 10              | 3             | 5.5 ms     |
 
-| Number of Nodes | Number of CM | Number of Pages | Number of Requests | Time Taken |
-|--|--|--|--|--|
-| 10 | 1 | 5 | 1000 | 1.5s |
+This performance difference can be attributed to the overhead involved in managing multiple configuration managers (CMs). While the fault-tolerant version introduces additional complexity, this slight increase in response time is expected and can be considered a trade-off for enhanced fault tolerance.
+
+### Performance in Single Fault Scenario
+| Scenario                             | Number of Nodes | Number of CMs | Time Taken  |
+|--------------------------------------|-----------------|---------------|-------------|
+| Fault-Tolerant Version (without failure) | 10              | 3             | 5.5 ms     |
+| Primary CM Fails (Fault-Tolerant)    | 10              | 3             | 5.8 ms      |
+| Primary CM Fails and Restarts (Fault-Tolerant) | 10     | 3             | 6.0 ms      |
+This marginal increase in time under fault conditions demonstrates the effectiveness of the fault-tolerant design. The system can handle the failure and recovery of the primary CM with only a slight impact on performance, underscoring its resilience.
+
+
+### Performance in Multiple Faults Scenario (Primary CM)
+| Scenario                                       | Number of Nodes | Number of CMs | Time Taken  |
+|------------------------------------------------|-----------------|---------------|-------------|
+| Fault-Tolerant Version (without failure) | 10              | 3             | 5.5 ms     |
+| Fault-Tolerant Version (Multiple failure) | 10              | 3             | 8.5 ms     |
+
+This increase in response time under multiple failure conditions indicates a higher processing overhead in exchanging the states. However, it's important to note that the system still maintains operational status, showcasing its capacity to manage multiple disruptions effectively.
+### Performance in Multiple Faults Scenario (Primary and Backup CM)
+| Scenario                                                     | Number of Nodes | Number of CMs | Time Taken  |
+|--------------------------------------------------------------|-----------------|---------------|-------------|
+| Fault-Tolerant Version (without failure) | 10              | 3             | 5.5 ms     |
+| Fault-Tolerant Version (multiple failure) | 10              | 3             | 10.5 ms     |
+
+This scenario represents the most challenging condition, with both primary and backup CMs failing. The increase in time taken here is considerable, yet the system's ability to continue functioning, albeit at a slower pace, is a testament to its robustness. This performance illustrates the trade-off between maintaining operations in the face of complex faults and the associated increase in response time.
 
 
 

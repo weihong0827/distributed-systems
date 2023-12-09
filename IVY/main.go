@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	var nClient int64 = 5
+	var nClient int64 = 10
 	var nReplica int64 = 3
 	nodes := make(map[int64]string, nClient)
 	managers := make(map[int64]string, nReplica)

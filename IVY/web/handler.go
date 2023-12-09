@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	pb "Ivy/pb"
 	"Ivy/utils"
@@ -21,10 +22,13 @@ func HandleWriteRequest(w http.ResponseWriter, r *http.Request, clients map[int6
 			http.Error(w, "Error creating client", http.StatusInternalServerError)
 		}
 
+		start := time.Now()
 		_, err = client.InitWrite(context.Background(), &pb.InitWriteRequest{
 			Page:    query.Get("page"),
 			Content: query.Get("content"),
 		})
+		duration := time.Since(start)
+		fmt.Fprintf(w, "Write request took %v\n", duration)
 		if err != nil {
 			http.Error(w, "Error sending request", http.StatusInternalServerError)
 		}
@@ -47,9 +51,12 @@ func HandleReadRequest(w http.ResponseWriter, r *http.Request, clients map[int64
 			http.Error(w, "Error creating client", http.StatusInternalServerError)
 		}
 
+		start := time.Now()
 		resp, err := client.InitRead(context.Background(), &pb.InitReadRequest{
 			Page: query.Get("page"),
 		})
+		duration := time.Since(start)
+		fmt.Fprintf(w, "Write request took %v\n", duration)
 		if err != nil {
 			errMsg := fmt.Sprintf("Error sending request: %v", err)
 			http.Error(w, errMsg, http.StatusInternalServerError)
